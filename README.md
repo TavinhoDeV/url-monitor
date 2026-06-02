@@ -1,22 +1,22 @@
-# 🔍 URL Monitor — Worker Service em C#
+# URL Monitor — Worker Service em C#
 
 **Worker Service** desenvolvido em **C# + .NET 8** que monitora URLs em background, detecta quedas, rastreia incidentes e gera logs com **Serilog**. Ideal para demonstrar conhecimento em processamento assíncrono e serviços de background.
 
 ---
 
-## ✨ Funcionalidades
+##  Funcionalidades
 
-- ⚙️ Worker Service rodando em background continuamente
-- 🔁 Verificação de múltiplas URLs em paralelo
-- ⏱️ Intervalo de verificação configurável por URL
-- 📊 Medição do tempo de resposta (ms)
-- 🚨 Abertura e resolução automática de incidentes
-- 📝 Logs estruturados no console e em arquivo com Serilog
-- 💾 Histórico completo de checks no SQLite
+-  Worker Service rodando em background continuamente
+-  Verificação de múltiplas URLs em paralelo
+-  Intervalo de verificação configurável por URL
+-  Medição do tempo de resposta (ms)
+-  Abertura e resolução automática de incidentes
+-  Logs estruturados no console e em arquivo com Serilog
+-  Histórico completo de checks no SQLite
 
 ---
 
-## 🚀 Tecnologias
+##  Tecnologias
 
 | Tecnologia | Uso |
 |---|---|
@@ -54,7 +54,7 @@ VALUES ('Minha API', 'https://minha-api.com/health', 30, 5, 200, 1, datetime('no
 
 ---
 
-## ✅ Testes
+##  Testes
 
 ```bash
 cd UrlMonitor.Tests
@@ -63,7 +63,7 @@ dotnet test
 
 ---
 
-## 🗂️ Estrutura
+##  Estrutura
 
 ```
 url-monitor/
