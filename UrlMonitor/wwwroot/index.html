@@ -1,0 +1,857 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URL Monitor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0f14;
+            --surface: #111318;
+            --border: #1e2130;
+            --border2: #2d3350;
+            --text-1: #f1f5f9;
+            --text-2: #94a3b8;
+            --text-3: #475569;
+            --text-4: #2d3350;
+            --green: #4ade80;
+            --green-bg: #14532d22;
+            --red: #f87171;
+            --red-bg: #450a0a22;
+            --orange: #fb923c;
+            --orange-bg: #451a0322;
+            --indigo: #818cf8;
+            --yellow: #fbbf24;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-1);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #1e2040;
+            border: 1px solid #2d3370;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .logo i {
+                font-size: 15px;
+                color: var(--indigo);
+            }
+
+        .topbar h1 {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-2);
+            letter-spacing: .04em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 600;
+            letter-spacing: .06em;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%,100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .3
+            }
+        }
+
+        .refresh-info {
+            font-size: 11px;
+            color: var(--text-3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ── Progress bar ── */
+        .progress-bar {
+            height: 2px;
+            background: var(--border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--indigo);
+            width: 100%;
+            transform-origin: left;
+            animation: shrink 15s linear infinite;
+        }
+
+        @keyframes shrink {
+            from {
+                transform: scaleX(1)
+            }
+
+            to {
+                transform: scaleX(0)
+            }
+        }
+
+        /* ── Layout ── */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 28px;
+        }
+
+        /* ── Summary cards ── */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .scard {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .scard::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+            }
+
+            .scard.indigo::after {
+                background: var(--indigo);
+            }
+
+            .scard.green::after {
+                background: var(--green);
+            }
+
+            .scard.red::after {
+                background: var(--red);
+            }
+
+            .scard.yellow::after {
+                background: var(--yellow);
+            }
+
+        .scard-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .scard.indigo .scard-icon {
+            background: #1e2040;
+            color: var(--indigo);
+        }
+
+        .scard.green .scard-icon {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .scard.red .scard-icon {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .scard.yellow .scard-icon {
+            background: #451a0322;
+            color: var(--yellow);
+        }
+
+        .scard-value {
+            font-size: 30px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--text-1);
+        }
+
+        .scard.green .scard-value {
+            color: var(--green);
+        }
+
+        .scard.red .scard-value {
+            color: var(--red);
+        }
+
+        .scard-label {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        /* ── Section header ── */
+        .sec-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .sec-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .sec-title i {
+                font-size: 14px;
+            }
+
+        .sec-count {
+            font-size: 11px;
+            color: var(--text-4);
+            background: var(--border);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* ── Column headers ── */
+        .col-header {
+            display: grid;
+            grid-template-columns: 36px 1fr 100px 80px 130px 90px;
+            gap: 12px;
+            padding: 0 16px 8px;
+            font-size: 10px;
+            color: var(--text-4);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .col-right {
+            text-align: right;
+        }
+
+        /* ── URL rows ── */
+        .url-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 24px;
+        }
+
+        .url-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--border);
+            border-radius: 8px;
+            padding: 13px 16px;
+            display: grid;
+            grid-template-columns: 36px 1fr 100px 80px 130px 90px;
+            align-items: center;
+            gap: 12px;
+            transition: border-color .15s, background .15s;
+        }
+
+            .url-row:hover {
+                background: #13161f;
+                border-color: var(--border2);
+                border-left-color: var(--border2);
+            }
+
+            .url-row.is-online {
+                border-left-color: var(--border);
+            }
+
+            .url-row.is-offline {
+                border-left-color: var(--red);
+            }
+
+            .url-row.is-timeout {
+                border-left-color: var(--orange);
+            }
+
+        .status-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+            .status-dot.online {
+                background: var(--green-bg);
+                color: var(--green);
+            }
+
+            .status-dot.offline {
+                background: var(--red-bg);
+                color: var(--red);
+            }
+
+            .status-dot.timeout {
+                background: var(--orange-bg);
+                color: var(--orange);
+            }
+
+            .status-dot.nodata {
+                background: var(--border);
+                color: var(--text-3);
+            }
+
+        .url-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-1);
+            margin-bottom: 2px;
+        }
+
+        .url-addr {
+            font-size: 11px;
+            color: var(--text-4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+            .badge.online {
+                background: var(--green-bg);
+                color: var(--green);
+            }
+
+            .badge.offline {
+                background: var(--red-bg);
+                color: var(--red);
+            }
+
+            .badge.timeout {
+                background: var(--orange-bg);
+                color: var(--orange);
+            }
+
+            .badge.nodata {
+                background: var(--border);
+                color: var(--text-3);
+            }
+
+        .resp {
+            font-size: 13px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+            .resp.fast {
+                color: var(--green);
+            }
+
+            .resp.med {
+                color: var(--yellow);
+            }
+
+            .resp.slow {
+                color: var(--red);
+            }
+
+            .resp.none {
+                color: var(--text-4);
+            }
+
+        .uptime-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .uptime-track {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .uptime-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width .4s;
+        }
+
+            .uptime-fill.hi {
+                background: var(--green);
+            }
+
+            .uptime-fill.mid {
+                background: var(--yellow);
+            }
+
+            .uptime-fill.low {
+                background: var(--red);
+            }
+
+        .uptime-pct {
+            font-size: 10px;
+            color: var(--text-3);
+        }
+
+        .hist {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+        }
+
+        .hb {
+            width: 7px;
+            border-radius: 2px;
+            opacity: .45;
+        }
+
+            .hb:last-child {
+                opacity: 1;
+            }
+
+            .hb.online {
+                background: var(--green);
+                height: 16px;
+            }
+
+            .hb.offline {
+                background: var(--red);
+                height: 10px;
+            }
+
+            .hb.timeout {
+                background: var(--orange);
+                height: 13px;
+            }
+
+            .hb.nodata {
+                background: var(--border2);
+                height: 8px;
+            }
+
+        /* ── Incidents ── */
+        .incidents-box {
+            background: #110d0d;
+            border: 1px solid #2a1515;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .inc-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #1e1010;
+        }
+
+            .inc-row:last-child {
+                border-bottom: none;
+            }
+
+        .inc-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inc-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--red-bg);
+            color: var(--red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .inc-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fca5a5;
+        }
+
+        .inc-reason {
+            font-size: 11px;
+            color: #7f1d1d;
+            margin-top: 1px;
+        }
+
+        .inc-meta {
+            text-align: right;
+        }
+
+        .inc-dur {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--red);
+        }
+
+        .inc-since {
+            font-size: 10px;
+            color: #7f1d1d;
+            margin-top: 2px;
+        }
+
+        /* ── No incidents ── */
+        .no-inc {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-3);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .no-inc i {
+                color: var(--green);
+                font-size: 18px;
+            }
+
+        /* ── Spinner ── */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            gap: 14px;
+            color: var(--text-3);
+            font-size: 13px;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border2);
+            border-top-color: var(--indigo);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #content {
+            display: none;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-4);
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo"><i class="ti ti-radar-2" aria-hidden="true"></i></div>
+            <h1>URL Monitor</h1>
+        </div>
+        <div class="topbar-right">
+            <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+            <span class="refresh-info"><i class="ti ti-refresh" style="font-size:13px" aria-hidden="true"></i><span id="countdown">15</span>s</span>
+        </div>
+    </div>
+
+    <div class="main">
+        <div id="loading">
+            <div class="spinner"></div>
+            Conectando ao monitor...
+        </div>
+
+        <div id="content">
+            <div class="summary">
+                <div class="scard indigo">
+                    <div class="scard-icon"><i class="ti ti-world" aria-hidden="true"></i></div>
+                    <div class="scard-value" id="s-total">—</div>
+                    <div class="scard-label">URLs monitoradas</div>
+                </div>
+                <div class="scard green">
+                    <div class="scard-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+                    <div class="scard-value" id="s-online">—</div>
+                    <div class="scard-label">Online agora</div>
+                </div>
+                <div class="scard red">
+                    <div class="scard-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+                    <div class="scard-value" id="s-inc">—</div>
+                    <div class="scard-label">Incidentes abertos</div>
+                </div>
+                <div class="scard yellow">
+                    <div class="scard-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+                    <div class="scard-value" id="s-avg">—</div>
+                    <div class="scard-label">Resposta média</div>
+                </div>
+            </div>
+
+            <div class="sec-header">
+                <div class="sec-title"><i class="ti ti-list" aria-hidden="true"></i>Serviços</div>
+                <span class="sec-count" id="url-count">0 URLs</span>
+            </div>
+            <div class="col-header">
+                <span></span><span>Serviço</span><span>Status</span>
+                <span class="col-right">Resposta</span><span>Uptime (1h)</span><span>Histórico</span>
+            </div>
+            <div class="url-list" id="url-list"></div>
+
+            <div class="sec-header">
+                <div class="sec-title" style="color:#7f1d1d"><i class="ti ti-flame" aria-hidden="true"></i>Incidentes ativos</div>
+            </div>
+            <div class="incidents-box" id="incidents-box"></div>
+
+            <div class="footer" id="footer-time">—</div>
+        </div>
+    </div>
+
+    <script>
+        const INTERVAL = 15000;
+        let countdown = 15;
+        let timer;
+
+        function statusClass(s) {
+            return { Online: 'online', Offline: 'offline', Timeout: 'timeout' }[s] || 'nodata';
+        }
+
+        function statusIcon(s) {
+            return { Online: 'ti-check', Offline: 'ti-x', Timeout: 'ti-clock-pause' }[s] || 'ti-question-mark';
+        }
+
+        function badgeIcon(s) {
+            return { Online: 'ti-circle-check', Offline: 'ti-circle-x', Timeout: 'ti-clock-pause' }[s] || 'ti-minus';
+        }
+
+        function respClass(ms) {
+            if (!ms || ms === 0) return 'none';
+            if (ms < 400) return 'fast';
+            if (ms < 1200) return 'med';
+            return 'slow';
+        }
+
+        function uptimeClass(pct) {
+            if (pct >= 99) return 'hi';
+            if (pct >= 90) return 'mid';
+            return 'low';
+        }
+
+        function timeAgo(dateStr) {
+            if (!dateStr) return '—';
+            const diff = Math.floor((Date.now() - new Date(dateStr + 'Z').getTime()) / 1000);
+            if (diff < 60) return `${diff}s atrás`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m atrás`;
+            return `${Math.floor(diff / 3600)}h atrás`;
+        }
+
+        function duration(dateStr) {
+            if (!dateStr) return '—';
+            const diff = Math.floor((Date.now() - new Date(dateStr + 'Z').getTime()) / 1000);
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            if (h > 0) return `${h}h ${m}m`;
+            if (m > 0) return `${m}m ${s}s`;
+            return `${s}s`;
+        }
+
+        function histBars(history) {
+            const items = [...history].reverse();
+            while (items.length < 8) items.unshift({ status: 'nodata' });
+            return items.slice(-8).map((h, i) => {
+                const cls = statusClass(h.status);
+                const isLast = i === items.slice(-8).length - 1;
+                return `<div class="hb ${cls}${isLast ? ' last' : ''}" title="${h.status}"></div>`;
+            }).join('');
+        }
+
+        function render(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            document.getElementById('s-total').textContent = data.totalUrls;
+            document.getElementById('s-online').textContent = data.urlsOnline;
+            document.getElementById('s-inc').textContent = data.incidentesAbertos;
+            document.getElementById('url-count').textContent = `${data.totalUrls} URLs`;
+
+            const allMs = data.urls.filter(u => u.responseTimeMs > 0).map(u => u.responseTimeMs);
+            const avg = allMs.length ? Math.round(allMs.reduce((a, b) => a + b, 0) / allMs.length) : 0;
+            document.getElementById('s-avg').innerHTML = avg > 0
+                ? `${avg}<span style="font-size:14px;color:var(--text-2)">ms</span>`
+                : '—';
+
+            const list = document.getElementById('url-list');
+            list.innerHTML = data.urls.map(u => {
+                const sc = statusClass(u.status);
+                const rc = respClass(u.responseTimeMs);
+                const uc = uptimeClass(u.uptimePct);
+                return `
+        <div class="url-row is-${sc}">
+          <div class="status-dot ${sc}"><i class="ti ${statusIcon(u.status)}" aria-hidden="true"></i></div>
+          <div>
+            <div class="url-name">${u.nome}</div>
+            <div class="url-addr">${u.url.replace(/^https?:\/\//, '')}</div>
+          </div>
+          <div><span class="badge ${sc}"><i class="ti ${badgeIcon(u.status)}" style="font-size:10px" aria-hidden="true"></i>${u.status}</span></div>
+          <div class="resp ${rc}">${u.responseTimeMs > 0 ? u.responseTimeMs + 'ms' : '—'}</div>
+          <div class="uptime-wrap">
+            <div class="uptime-track"><div class="uptime-fill ${uc}" style="width:${u.uptimePct}%"></div></div>
+            <div class="uptime-pct">${u.uptimePct}%</div>
+          </div>
+          <div class="hist">${histBars(u.historicoStatus)}</div>
+        </div>`;
+            }).join('');
+
+            const incBox = document.getElementById('incidents-box');
+            if (data.incidentes.length === 0) {
+                incBox.innerHTML = `<div class="no-inc"><i class="ti ti-circle-check" aria-hidden="true"></i>Nenhum incidente aberto</div>`;
+            } else {
+                incBox.innerHTML = data.incidentes.map(i => `
+          <div class="inc-row">
+            <div class="inc-left">
+              <div class="inc-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+              <div>
+                <div class="inc-name">${i.nomeUrl}</div>
+                <div class="inc-reason">${i.motivo}</div>
+              </div>
+            </div>
+            <div class="inc-meta">
+              <div class="inc-dur">${duration(i.iniciadoEm)}</div>
+              <div class="inc-since">Desde ${new Date(i.iniciadoEm + 'Z').toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+            </div>
+          </div>`).join('');
+            }
+
+            document.getElementById('footer-time').textContent =
+                'Última atualização: ' + new Date().toLocaleTimeString('pt-BR');
+
+            resetBar();
+        }
+
+        function resetBar() {
+            const bar = document.getElementById('pbar');
+            bar.style.animation = 'none';
+            bar.offsetHeight;
+            bar.style.animation = '';
+            countdown = 15;
+        }
+
+        function startCountdown() {
+            clearInterval(timer);
+            countdown = 15;
+            timer = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown').textContent = countdown;
+                if (countdown <= 0) {
+                    fetchData();
+                    countdown = 15;
+                }
+            }, 1000);
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch('/api/dashboard/status');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                render(data);
+            } catch (e) {
+                console.error('Erro ao buscar dados:', e);
+            }
+        }
+
+        fetchData();
+        startCountdown();
+    </script>
+</body>
+</html>
